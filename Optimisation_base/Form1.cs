@@ -21,12 +21,13 @@ namespace Optimisation_base
         private static double deltay;
         private static int definitionmultiplier = 5;
         bool GridFlag = false;
-        static Bitmap bitmap = new Bitmap(size, size);
+        public static Bitmap bitmap = new Bitmap(size, size);
         List<Tuple<double, double>> points = new List<Tuple<double, double>>();
         static double[,] AllValues = new double[size * definitionmultiplier, size * definitionmultiplier];
         static List<List<Point>> LevelLines = new List<List<Point>>();
         double maximum;
         double minimum;
+        private static bool LineFlag = true;
         public Form1()
         {
             InitializeComponent();
@@ -125,6 +126,27 @@ namespace Optimisation_base
             }
             Graphic.Image = bitmap;
         }
+        public void DrawTriangle(List<Tuple<double, double>> points1)
+        {
+            LineFlag = false;
+            if (points1.Count <= 1)
+            {
+                return;
+            }
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                for (int i = 0; i < points1.Count - 1; i++)
+                {
+                    Point first = new Point(Convert.ToInt32(Math.Round(points1[i].Item1 * Convert.ToInt32(deltax))) + modifx, size - Convert.ToInt32(Math.Round(points1[i].Item2 * Convert.ToInt32(deltay))) - modify - 1 - 2 * Convert.ToInt32(Convert.ToDouble(CentreYBox.Text) * Convert.ToInt32(DeltaYBox.Text)));
+                    Point second = new Point(Convert.ToInt32(Math.Round(points1[i + 1].Item1 * Convert.ToInt32(deltax))) + modifx, size - Convert.ToInt32(Math.Round(points1[i + 1].Item2 * Convert.ToInt32(deltay))) - modify - 1 - 2 * Convert.ToInt32(Convert.ToDouble(CentreYBox.Text) * Convert.ToInt32(DeltaYBox.Text)));
+                    g.DrawLine(new Pen(Brushes.Red, 2), first, second);
+                }
+                Point first1 = new Point(Convert.ToInt32(Math.Round(points1[points1.Count - 1].Item1 * Convert.ToInt32(deltax))) + modifx, size - Convert.ToInt32(Math.Round(points1[points1.Count - 1].Item2 * Convert.ToInt32(deltay))) - modify - 1 - 2 * Convert.ToInt32(Convert.ToDouble(CentreYBox.Text) * Convert.ToInt32(DeltaYBox.Text)));
+                Point second1 = new Point(Convert.ToInt32(Math.Round(points1[0].Item1 * Convert.ToInt32(deltax))) + modifx, size - Convert.ToInt32(Math.Round(points1[0].Item2 * Convert.ToInt32(deltay))) - modify - 1 - 2 * Convert.ToInt32(Convert.ToDouble(CentreYBox.Text) * Convert.ToInt32(DeltaYBox.Text)));
+                g.DrawLine(new Pen(Brushes.Red, 2), first1, second1);
+            }
+            Graphic.Image = bitmap;
+        }
         private void DrawLines()
         {
             double delta = (maximum - minimum) / Convert.ToDouble(LineCountBox.Text);
@@ -144,6 +166,11 @@ namespace Optimisation_base
                 }
                 
             }
+            if(points.Count > 2)
+            {
+                Z.Add(Round(F(points[points.Count - 1].Item1, points[points.Count - 1].Item2)));
+            }
+            
             Z.Add(0);
             //Z.Add(0.1);
             Z.Add(1.0);
@@ -180,7 +207,11 @@ namespace Optimisation_base
             }
             try
             {
-                DrawLomanaya();
+                if (LineFlag)
+                {
+                    DrawLomanaya();
+                }
+                
             }
             catch
             {
@@ -190,11 +221,12 @@ namespace Optimisation_base
         }
         private double F(double x, double y)
         {
-            //return (x * x + y - 11) * (x * x + y - 11) + (x + y * y - 7) * (x + y * y - 7);
-            return (1 - x) * (1 - x) + 100 * (y - x * x) * (y - x * x);
+            return (x * x + y - 11) * (x * x + y - 11) + (x + y * y - 7) * (x + y * y - 7);//Himmelblau
+            //return (1 - x) * (1 - x) + 100 * (y - x * x) * (y - x * x);//Rosenbrok
             //return 1 * x * x + 3 * y * y  - 2 * x * y +1 * x -4 * y - 4;
-            //return x * x + 2 * y * y - 2 * x + 1 * y - 5;
-            //return x * x + y * y - 4 * x - 2 * y;
+            //return x * x + 2 * y * y  - 2 * x + 1 * y;//Test form
+            //return x * x + 2 * y * y - 4 * x + 2 * y;
+            //return x * x + y * y + x * y + x + y;
             //return x * x + 10 * y * y;
         }
         private void Form1_Load(object sender, EventArgs e)
@@ -208,6 +240,7 @@ namespace Optimisation_base
                 g.DrawImage(sourceBMP, 0, 0, width, height);
             return result;
         }
+        
         private void DrawLomanaya()
         {
             if(points.Count <= 1)

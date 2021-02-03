@@ -15,11 +15,12 @@ namespace Optimisation_base
         static void Main()
         {
             //var a = Dichotromia_evaluation.CalcMin(-5, 10);
-            //KvasiNeutonMethods.MultiDimIterations();
+            //KvasiNeutonMethods.ExploreRozenbrok();
             //return;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            KvasiNeutonMethods.forma = new Form1();
+            Application.Run(KvasiNeutonMethods.forma);
         }
     }
 }
